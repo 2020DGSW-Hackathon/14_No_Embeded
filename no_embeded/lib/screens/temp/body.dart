@@ -44,12 +44,10 @@ class Body extends StatelessWidget {
                   ],
                 );
               }
-              return CustomPaint(
-                size: Size(
-                  getProportionateScreenWidth(260),
-                  getProportionateScreenHeight(260),
-                ),
-                painter: PieChart(
+              return SizedBox(
+                width: getProportionateScreenWidth(260),
+                height: getProportionateScreenHeight(260),
+                child: Circle(
                   information: [
                     "\n너무 낮은 온도에요.\n난방기를 켜주세요.",
                     "\n딱 적당한 온도에요.\n이대로 유지해주세요.",

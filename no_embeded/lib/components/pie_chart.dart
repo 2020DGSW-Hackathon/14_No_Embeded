@@ -2,17 +2,110 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+class Circle extends StatefulWidget {
+  final double value;
+  final double maxValue;
+  final List<Color> gradient;
+  final List<double> stops;
+  final List<String> information;
+  final TextStyle textStyle;
+  final TextStyle subTextStyle;
+  final List<double> informationStop;
+  Circle({
+    @required this.informationStop,
+    @required this.value,
+    @required this.maxValue,
+    @required this.gradient,
+    @required this.stops,
+    @required this.information,
+    @required this.textStyle,
+    @required this.subTextStyle,
+  });
+  @override
+  State<StatefulWidget> createState() => CircleState();
+}
+
+class CircleState extends State<Circle> with SingleTickerProviderStateMixin {
+  PieChart painter;
+  Animation<double> animation;
+  AnimationController controller;
+  double fraction = 0.0;
+
+  initState() {
+    super.initState();
+    controller = AnimationController(
+        duration: const Duration(milliseconds: 700), vsync: this);
+    animation = Tween(begin: 0.0, end: 1.0).animate(controller)
+      ..addListener(() {
+        setState(() {
+          fraction = animation.value;
+        });
+      });
+    controller.forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    painter = PieChart(
+        information: widget.information,
+        informationStop: widget.informationStop,
+        gradient: widget.gradient,
+        stops: widget.stops,
+        value: widget.value,
+        maxValue: widget.maxValue,
+        textStyle: widget.textStyle,
+        subTextStyle: widget.subTextStyle,
+        fraction: fraction);
+    return CustomPaint(painter: painter);
+  }
+
+  @override
+  dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+
+// FOR PAINTING POLYGONS
+class CirclePainter extends CustomPainter {
+  Paint _paint;
+  double _fraction;
+
+  CirclePainter(this._fraction) {
+    _paint = Paint()
+      ..color = Colors.blue
+      ..strokeWidth = 10.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    print('paint $_fraction');
+
+    var rect = Offset(0.0, 0.0) & size;
+
+    canvas.drawArc(rect, -pi / 2, pi * 2 * _fraction, false, _paint);
+  }
+
+  @override
+  bool shouldRepaint(CirclePainter oldDelegate) {
+    return oldDelegate._fraction != _fraction;
+  }
+}
+
 class PieChart extends CustomPainter {
   final double value;
   final double maxValue;
   final List<Color> gradient;
   final List<double> stops;
   final List<String> information;
-
+  final double fraction;
   final TextStyle textStyle;
   final TextStyle subTextStyle;
   final List<double> informationStop;
   PieChart({
+    @required this.fraction,
     @required this.informationStop,
     @required this.value,
     @required this.maxValue,
@@ -48,9 +141,8 @@ class PieChart extends CustomPainter {
 
     double arcAngle = 2 * pi * (value / maxValue) * 260 / 360;
     paint..shader = grad.createShader(rect);
-    paint..color = Colors.deepPurpleAccent; // 호를 그릴 때는 색을 바꿔줌.
     canvas.drawArc(Rect.fromCircle(center: center, radius: radius), rad(-220),
-        arcAngle, false, paint);
+        arcAngle * fraction, false, paint);
 
     Path p = Path()
       ..addOval(

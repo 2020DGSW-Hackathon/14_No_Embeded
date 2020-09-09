@@ -45,12 +45,10 @@ class Body extends StatelessWidget {
                     ],
                   );
                 }
-                return CustomPaint(
-                  size: Size(
-                    getProportionateScreenWidth(260),
-                    getProportionateScreenHeight(260),
-                  ),
-                  painter: PieChart(
+                return SizedBox(
+                  width: getProportionateScreenWidth(260),
+                  height: getProportionateScreenHeight(260),
+                  child: Circle(
                     information: [
                       "\n적당한 이산화 탄소량 이에요.\n이대로 유지해주세요.",
                       "\n이산화 탄소량이 높아졌어요.\n환기를 진행해주세요.",
